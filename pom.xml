@@ -28,6 +28,7 @@
         <module>repsy-api</module>
         <module>storage-filesystem</module>
         <module>storage-object</module>
+        <module>storage-strategy</module>
     </modules>
 
     <dependencies>
