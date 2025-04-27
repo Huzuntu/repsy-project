@@ -48,6 +48,11 @@
 			<artifactId>storage-object</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>io.repsy</groupId>
+			<artifactId>storage-strategy</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -60,6 +65,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>1.18.30</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
