@@ -1,24 +1,31 @@
 # Repsy API Project
 
 ## 📚 About
-This project is a **Spring Boot REST API** service that lets you upload and download `.rep` packages, with additional meta files `meta.json`.  
-It uses a **PostgreSQL** database and can optionally work with **MinIO** storage integration.
 
-The app can be easily spun up using **Docker Compose**.
+This project is a **Spring Boot REST API** service that lets you upload and download `.rep` packages along with their `meta.json` metadata files.  
+It uses a **PostgreSQL** database and can optionally work with **MinIO** for object storage.
+
+The app can be easily run using **Docker Compose**.
 
 ---
 
 ## 🚀 Getting Started
 
-To run the project from the terminal, while you're in the root directory:
+1. **Clone** the project and move to the root directory.
+
+2. **Start** the containers:
 
 ```bash
 docker-compose up -d
 ```
 
-Docker will automatically pull the necessary images and start the service.
+Docker will automatically pull the necessary images and start:
+- Postgres
+- MinIO
+- The Repsy API application
 
-Once it's up, you can access it at `localhost:8080`.
+Once it's running, the API will be available at:  
+➡️ `http://localhost:8080`
 
 ---
 
@@ -26,20 +33,21 @@ Once it's up, you can access it at `localhost:8080`.
 
 - Docker
 - Docker Compose
-- (Optional) A Postgres and MinIO server if you want to run your own
+
+(Optional if not using Docker: PostgreSQL and MinIO servers)
 
 ---
 
-## 🐳 Docker Image
+## 🐳 Docker Images
 
-- Application Image:  
+- **Application Image**:  
   `repo.repsy.io/huzuntu/repsy-project-docker/repsy-api:1.0.0`
 
 ---
 
 ## ⚙️ Environment Variables
 
-These are already set up inside `docker-compose.yml`:
+Environment variables are configured inside `docker-compose.yml`:
 
 | Variable | Description |
 |:---|:---|
@@ -47,14 +55,14 @@ These are already set up inside `docker-compose.yml`:
 | `SPRING_DATASOURCE_USERNAME` | PostgreSQL username |
 | `SPRING_DATASOURCE_PASSWORD` | PostgreSQL password |
 | `STORAGE_STRATEGY` | Choose between `file-system` or `object-storage` |
-| `MINIO_ENDPOINT` | MinIO server URL (optional) |
+| `MINIO_ENDPOINT` | MinIO server URL |
 | `MINIO_ACCESS_KEY` | MinIO access key |
 | `MINIO_SECRET_KEY` | MinIO secret key |
-| `MINIO_BUCKET_NAME` | Bucket name for MinIO |
+| `MINIO_BUCKET_NAME` | MinIO bucket name (default: `repsy-bucket`) |
 
 ---
 
-## 🏗 Project Structure
+## 📦 Project Structure
 
 ```plaintext
 repsy-api-project/
@@ -63,27 +71,13 @@ repsy-api-project/
 ├── data/
 │   └── mypkg/
 │       └── 1.0.0/
-│           └── mypkg-1.0.0.rep
+│           ├── mypkg-1.0.0.rep
+│           └── meta.json
 ├── repsy-api/
 │   ├── Dockerfile
 │   ├── pom.xml
 │   ├── settings.xml
 │   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   │   └── io/repsy/repsy_api/
-│       │   │       ├── RepsyApiApplication.java
-│       │   │       ├── config/
-│       │   │       ├── controller/
-│       │   │       ├── entity/
-│       │   │       ├── exception/
-│       │   │       ├── repository/
-│       │   │       └── service/
-│       │   └── resources/
-│       │       ├── application.properties
-│       │       ├── static/
-│       │       └── templates/
-│       └── test/
 ├── repsy-libraries/
 │   ├── storage-strategy/
 │   ├── storage-filesystem/
@@ -92,38 +86,98 @@ repsy-api-project/
 
 ---
 
-## 📦 Package Hosting (Repsy.io)
+## ⚡️ Important Note for MinIO Testing
 
-- The **libraries** (`storage-strategy`, `storage-filesystem`, `storage-object`) are uploaded to a **private Maven repo** on Repsy.io.
-- The **application** (`repsy-api`) is pushed as a **public Docker image** to Repsy.io.
+If you are using the `object-storage` strategy (MinIO):
+- Please **manually create the bucket** before uploading files!
+- Access MinIO web UI at:  
+  ➡️ `http://localhost:9000`
+- Default credentials:
+    - Username: `minioadmin`
+    - Password: `minioadmin`
+- Create a bucket named `repsy-bucket`).
 
 ---
 
-## ✅ Setup and Testing Steps
+## ✅ How to Test
 
-1. Move to the project root:
+After containers are up:
 
-    ```bash
-    cd repsy-api-project
-    ```
+### 1. Uploading a Valid Package
 
-2. Start everything up:
+```bash
+curl -X POST http://localhost:8080/mypkg/1.0.0 \
+  -F "repFile=@./data/mypkg/1.0.0/mypkg-1.0.0.rep" \
+  -F "metaFile=@./data/mypkg/1.0.0/meta.json"
+```
 
-    ```bash
-    docker-compose up -d
-    ```
+✅ You should get a success message:  
+`Package uploaded successfully`
 
-3. Access the API:
-    - `http://localhost:8080`
+---
 
-4. Try uploading or downloading a package to test.
+### 2. Downloading the Package
+
+```bash
+curl -X GET http://localhost:8080/mypkg/1.0.0/mypkg-1.0.0.rep --output downloaded.rep
+```
+
+✅ It should download the file without any errors.
+
+---
+
+### 3. Testing Invalid Uploads
+
+**a) Upload without `.rep` file**
+
+```bash
+curl -X POST http://localhost:8080/mypkg/1.0.1 \
+  -F "metaFile=@./data/mypkg/1.0.0/meta.json"
+```
+❌ Should return an error saying `.rep file is missing`.
+
+---
+
+**b) Upload with invalid `meta.json`**
+
+For example, use a `meta.json` with missing fields like (missing `name`, `version`, or `author` fields).
+
+```bash
+curl -X POST http://localhost:8080/mypkg/1.0.2 \
+  -F "repFile=@./data/mypkg/1.0.0/mypkg-1.0.0.rep" \
+  -F "metaFile=@./data/mypkg/1.0.0/invalid-meta.json"
+```
+❌ Should return an error about `meta.json` structure.
+
+---
+
+### 4. Switching Between FileSystem and MinIO Storage
+
+- To switch between storage types, change this line in `docker-compose.yml`:
+
+```yaml
+STORAGE_STRATEGY: file-system
+```
+or
+
+```yaml
+STORAGE_STRATEGY: object-storage
+```
+
+Then restart containers:
+
+```bash
+docker-compose down
+docker-compose up -d
+```
 
 ---
 
 ## 📜 Notes
 
-- If you're connecting to external PostgreSQL or MinIO services, make sure to update your environment variables in `docker-compose.yml`.
-- The `data/` folder already has a sample `.rep` file for testing.
+- If using **file-system** strategy, files are stored inside the container filesystem under `/data`.
+- If using **object-storage** strategy, files are stored in your MinIO bucket.
+- If MinIO bucket is missing, you must create it manually before testing.
 
 ---
 
