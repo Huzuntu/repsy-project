@@ -6,17 +6,13 @@
 
     <parent>
         <groupId>io.repsy</groupId>
-        <artifactId>repsy-pom</artifactId>
+        <artifactId>repsy-libraries</artifactId>
         <version>1.0.0</version>
     </parent>
 
     <artifactId>storage-strategy</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
+    <name>Storage Strategy Library</name>
+    <description>Interface for storage strategies</description>
 </project>

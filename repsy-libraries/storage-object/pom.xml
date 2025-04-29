@@ -6,18 +6,12 @@
 
     <parent>
         <groupId>io.repsy</groupId>
-        <artifactId>repsy-pom</artifactId>
+        <artifactId>repsy-libraries</artifactId>
         <version>1.0.0</version>
     </parent>
 
     <artifactId>storage-object</artifactId>
     <packaging>jar</packaging>
-
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -29,8 +23,10 @@
             <groupId>io.repsy</groupId>
             <artifactId>storage-strategy</artifactId>
             <version>1.0.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
-    
+
+    <name>Filesystem Storage Library</name>
+    <description>Implementation of filesystem-based storage</description>
+
 </project>
