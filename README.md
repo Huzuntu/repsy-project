@@ -1,6 +1,6 @@
 # Repsy API Project
 
-## 📚 About
+## About
 
 This project is a **Spring Boot REST API** service that lets you upload and download `.rep` packages along with their `meta.json` metadata files.  
 It uses a **PostgreSQL** database and can optionally work with **MinIO** for object storage.
@@ -9,7 +9,7 @@ The app can be easily run using **Docker Compose**.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Clone** the project and move to the root directory.
 
@@ -25,11 +25,11 @@ Docker will automatically pull the necessary images and start:
 - The Repsy API application
 
 Once it's running, the API will be available at:  
-➡️ `http://localhost:8080`
+`http://localhost:8080`
 
 ---
 
-## 🛠 Requirements
+## Requirements
 
 - Docker
 - Docker Compose
@@ -38,14 +38,14 @@ Once it's running, the API will be available at:
 
 ---
 
-## 🐳 Docker Images
+## Docker Images
 
 - **Application Image**:  
   `repo.repsy.io/huzuntu/repsy-project-docker/repsy-api:1.0.0`
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 Environment variables are configured inside `docker-compose.yml`:
 
@@ -62,7 +62,7 @@ Environment variables are configured inside `docker-compose.yml`:
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```plaintext
 repsy-api-project/
@@ -86,20 +86,20 @@ repsy-api-project/
 
 ---
 
-## ⚡️ Important Note for MinIO Testing
+## Important Note for MinIO Testing
 
 If you are using the `object-storage` strategy (MinIO):
-- Please **manually create the bucket** before uploading files!
+- Please **manually create the bucket** before uploading files.
 - Access MinIO web UI at:  
-  ➡️ `http://localhost:9000`
+  `http://localhost:9000`
 - Default credentials:
-    - Username: `minioadmin`
-    - Password: `minioadmin`
-- Create a bucket named `repsy-bucket`).
+  - Username: `minioadmin`
+  - Password: `minioadmin`
+- Create a bucket named `repsy-bucket`.
 
 ---
 
-## ✅ How to Test
+## How to Test
 
 After containers are up:
 
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8080/mypkg/1.0.0 \
   -F "metaFile=@./data/mypkg/1.0.0/meta.json"
 ```
 
-✅ You should get a success message:  
+You should get a success message:  
 `Package uploaded successfully`
 
 ---
@@ -122,7 +122,7 @@ curl -X POST http://localhost:8080/mypkg/1.0.0 \
 curl -X GET http://localhost:8080/mypkg/1.0.0/mypkg-1.0.0.rep --output downloaded.rep
 ```
 
-✅ It should download the file without any errors.
+It should download the file without any errors.
 
 ---
 
@@ -134,9 +134,7 @@ curl -X GET http://localhost:8080/mypkg/1.0.0/mypkg-1.0.0.rep --output downloade
 curl -X POST http://localhost:8080/mypkg/1.0.1 \
   -F "metaFile=@./data/mypkg/1.0.0/meta.json"
 ```
-❌ Should return an error saying `.rep file is missing`.
-
----
+Should return an error saying `.rep file is missing`.
 
 **b) Upload with invalid `meta.json`**
 
@@ -147,7 +145,7 @@ curl -X POST http://localhost:8080/mypkg/1.0.2 \
   -F "repFile=@./data/mypkg/1.0.0/mypkg-1.0.0.rep" \
   -F "metaFile=@./data/mypkg/1.0.0/invalid-meta.json"
 ```
-❌ Should return an error about `meta.json` structure.
+Should return an error about `meta.json` structure.
 
 ---
 
@@ -173,7 +171,7 @@ docker-compose up -d
 
 ---
 
-## 📜 Notes
+## Notes
 
 - If using **file-system** strategy, files are stored inside the container filesystem under `/data`.
 - If using **object-storage** strategy, files are stored in your MinIO bucket.
@@ -181,9 +179,7 @@ docker-compose up -d
 
 ---
 
-## ✨ Contact
+## Contact
 
 - Developer: Umut Tölek
 - Email: umuttolekk@gmail.com
-
----
