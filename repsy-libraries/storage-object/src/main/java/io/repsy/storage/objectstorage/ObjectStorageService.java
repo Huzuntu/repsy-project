@@ -1,9 +1,8 @@
 package io.repsy.storage.objectstorage;
 
-import io.minio.GetObjectArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.repsy.storage.StorageService;
+import jakarta.annotation.PostConstruct;
 
 import java.io.InputStream;
 
@@ -19,9 +18,29 @@ public class ObjectStorageService implements StorageService {
         this.bucketName = bucketName;
     }
 
+    @PostConstruct
+    public void initialize() {
+        try {
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+                System.out.println("Bucket created: " + bucketName);
+            } else {
+                System.out.println("Bucket already exists: " + bucketName);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not initialize bucket: " + e.getMessage());
+            throw new RuntimeException("Failed to initialize MinIO bucket", e);
+        }
+    }
+
     @Override
     public void save(String path, InputStream content) {
         try {
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            }
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
