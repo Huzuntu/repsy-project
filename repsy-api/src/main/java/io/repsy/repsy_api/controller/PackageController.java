@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/")
 public class PackageController {
     private final PackageService packageService;
 
@@ -21,32 +21,22 @@ public class PackageController {
 
 
     @PostMapping("/{packageName}/{version}")
-    public ResponseEntity<String> deploy(@PathVariable String packageName, @PathVariable String version, @RequestParam("file") MultipartFile file
-    ) throws IOException {
-        String filename = file.getOriginalFilename();
-        if (filename == null ||
-                (!filename.endsWith(".rep") && !filename.endsWith(".json"))) {
-            return ResponseEntity.badRequest()
-                    .body("Only .rep and .json files are accepted");
-        }
-        packageService.upload(packageName, version, file);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Uploaded " + filename + " successfully");
+    public ResponseEntity<String> deploy(@PathVariable String packageName, @PathVariable String version,
+                                         @RequestParam("repFile") MultipartFile repFile, @RequestParam("metaFile") MultipartFile metaFile) throws IOException {
+        packageService.upload(packageName, version, repFile, metaFile);
+        return ResponseEntity.status(HttpStatus.OK).body("Package uploaded successfully");
+
     }
 
     @GetMapping("/{packageName}/{version}/{fileName}")
-    public ResponseEntity<ByteArrayResource> download(
+    public ResponseEntity<byte[]> download(
             @PathVariable String packageName,
             @PathVariable String version,
-            @PathVariable String fileName
-    ) throws IOException {
-        byte[] data = packageService.download(packageName, version, fileName);
-        ByteArrayResource resource = new ByteArrayResource(data);
+            @PathVariable String fileName) throws IOException {
 
+        byte[] fileBytes = packageService.download(packageName, version, fileName);
         return ResponseEntity.ok()
-                .contentLength(data.length)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + fileName + "\"")
-                .body(resource);
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(fileBytes);
     }
 }
