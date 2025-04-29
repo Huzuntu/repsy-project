@@ -12,30 +12,29 @@ public class StorageConfig {
     @Value("${storage.strategy}")
     private String strategy;
 
-    @Value("${storage.root-path:}")
+    @Value("${storage.filesystem.root-path:}")
     private String rootPath;
 
-    @Value("${storage.endpoint:}")
+    @Value("${storage.object.endpoint:}")
     private String endpoint;
 
-    @Value("${storage.access-key:}")
+    @Value("${storage.object.access-key:}")
     private String accessKey;
 
-    @Value("${storage.secret-key:}")
+    @Value("${storage.object.secret-key:}")
     private String secretKey;
 
-    @Value("${storage.bucket-name:}")
+    @Value("${storage.object.bucket-name:}")
     private String bucketName;
 
     @Bean
     public StorageService storageService() {
-        switch (strategy.toLowerCase()) {
-            case "file-system":
-                return new FileSystemStorageService(rootPath);
-            case "object-storage":
-                return new ObjectStorageService(endpoint, accessKey, secretKey, bucketName);
-            default:
-                throw new IllegalArgumentException("Unknown storage.strategy: " + strategy);
+        if ("file-system".equalsIgnoreCase(strategy)) {
+            return new FileSystemStorageService(rootPath);
+        } else if ("object-storage".equalsIgnoreCase(strategy)) {
+            return new ObjectStorageService(endpoint, accessKey, secretKey, bucketName);
+        } else {
+            throw new IllegalArgumentException("Unknown storage.strategy: " + strategy);
         }
     }
 }
