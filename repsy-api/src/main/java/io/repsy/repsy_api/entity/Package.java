@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -23,10 +24,14 @@ public class Package {
     @Column(nullable = false)
     private String version;
 
-    private String author;
-
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
 
+    private String repFilePath;
+
+    private String metaFilePath;
+
+    @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Dependency> dependencies;
 
 }
